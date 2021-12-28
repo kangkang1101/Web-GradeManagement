@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>显示成绩</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script type="text/javascript">
+        //use(['模块名称',])
+        layui.use(['layer','form','jquery','table'],function () {
+            //编写自己的layui代码
+            //let声明组建
+            let layer=layui.layer;//实例化对象
+            let table=layui.table;
+            let $=layui.jquery;//声明一个jquery对象
+            let form=layui.form;//声明一个form对象
+
+            //编辑操作
+            $("#btn-submit").click(function () {
+                $.post('course/updateisset')
+                layer.msg("已提交审核");
+
+            })
+            $("#btn-edit").click(function () {
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要编辑的项');
+                }else if(array.length>1){
+                    layer.msg('编辑时只能选中一条记录进行编辑');
+                }else{
+                    layer.open({
+
+                        title:'编辑',
+                        area:['300px','300px'],
+                        type:1,
+                        content:$("#edit-dialog").html()
+                    });
+                    //填充修改表单
+                    form.val('load-data-form', {
+                        studentId:array[0].studentId,
+                        name:array[0].name,
+                        subjectId:array[0].subjectId,
+                        semester: array[0].semester,
+                        totalScore: array[0].totalScore,
+                        makeUpScore: array[0].makeUpScore,
+                        finallyScore: array[0].finallyScore,
+
+                    })
+                    form.on('submit(form-edit)',function (data) {
+
+                        $.post('/grade/update1', data.field, function (flag) {
+                            if (flag) {
+
+                                layer.msg('修改数据成功', {icon: 4});
+                                table.reload('dg');
+                                layer.closeAll('page');
+                            } else {
+                                layer.msg('修改数据失败', {icon: 5});
+                            }
+                        }, 'json')
+
+
+                        return false;
+                    })
+
+                }
+            })
+
+
+            table.render({
+                elem: '#dg'
+                ,url: '/grade/find2' //数据接口,控制层的路径
+                ,page: true //开启分页
+                ,toolbar:true
+                ,cols: [[ //表头
+                    //{filed:'coursenum',title:'课号',type:'checkbox'},
+                    {field:'studentId',title:'学号',type:'checkbox'},
+                    {field:'studentId',title:'学号'},
+                    {field: 'name',title:'姓名'},
+                    {field:'subjectId',title:'课号',},//field是实体的，title是网页命名，type是将cateId这一数据隐藏
+                    {field:'semester',title:'学期'},
+                    {field:'totalScore',title:'期末总分'},
+                    {field:'makeUpScore',title:'补考分'},
+                    {field:'finallyScore',title:'最后总分'}
+
+                ]]
+            });
+        })//引用多个用数组
+
+    </script>
+</head>
+<body>
+<button id="btn-edit" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>填写成绩</button>
+<button id="btn-submit" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe654;</i>提交审核</button>
+<table id="dg"></table>
+<script  type="text/html"  id="edit-dialog">
+    <form   method="post" class="layui-form" lay-filter="load-data-form">
+        <div class="layui-form-item">
+            <input type="hidden" name="studentId">
+            <input type="hidden" name="name">
+            <input type="hidden" name="subjectId">
+            <input type="hidden" name="semester">
+            <input type="hidden" name="totalScore">
+            <input type="hidden" name="finallyScore">
+            <input type="text" name="makeUpScore" required
+                   lay-verify="required"
+                   placeholder="请输入补考成绩"
+                   class="layui-input">
+
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn"   lay-submit lay-filter="form-edit">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+
+
+</script>
+</body>
+</html>

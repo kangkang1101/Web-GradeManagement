@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ECharts</title>
+    <!-- 引入刚刚下载的 ECharts 文件 -->
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="/layui/jquery.min.js"></script>
+    <script src="/layui/echarts.min.js"></script>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script type="text/javascript">
+        layui.use(['layer','form','jquery','table'],function () {
+            let form = layui.form;
+            let layer=layui.layer;//实例化对象
+            let table=layui.table;
+            let $=layui.jquery;//声明一个jquery对象
+
+
+            $("#btn-edit").click(function () {
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要编辑的项');
+                }else if(array.length>1){
+                    layer.msg('编辑时只能选中一条记录进行编辑');
+                }else {
+                    layer.open({
+                        title: '编辑',
+                        area: ['300px', '300px'],
+                        type: 1,
+                        content: $("#edit-dialog").html()
+                    });
+                    //填充修改表单
+                    form.val('load-data-form', {
+                        coursename: array[0].coursename,
+                        coursenum: array[0].coursenum,
+                        fenxi1: array[0].fenxi1,
+                        fenxi2: array[0].fenxi2,
+
+                    })
+                    form.on('submit(form-edit)', function (data) {
+
+                        $.post('/course/updatefenxi', data.field, function (flag) {
+                            if (flag) {
+
+                                layer.msg('修改数据成功', {icon: 4});
+                                table.reload('dg');
+                                layer.closeAll('page');
+                            } else {
+                                layer.msg('修改数据失败', {icon: 5});
+                            }
+                        }, 'json')
+
+
+                        return false;
+                    })
+
+                }
+            })
+            table.render({
+                elem: '#dg'
+                ,url: '/course/fenxi' //数据接口,控制层的路径
+                ,page: false //开启分页
+                ,toolbar:true
+                ,cols: [[ //表头
+                    {filed:'coursenum',title:'课号',type:'checkbox'},
+                    {field:'coursenum',title:'课号'},
+                    {field:'coursename',title:'课程名称'},
+                    {field: 'fenxi1',title:'考试成绩分析'},
+                    {field:'fenxi2',title:'试题质量分析'},
+
+                ]]
+            });
+            $.post('/grade/chart1', function (data) {
+                console.info(data)
+                    form.val("form1", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                        "name": data.name
+                        , "value":data.value
+                    });
+
+            })
+            })
+
+
+        </script>
+</head>
+<body>
+<button id="btn-edit" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>录入分析</button>
+<table id="dg"></table>
+<div id="main" style="width: 600px;height:400px;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    $.post('/grade/chart',function(data){
+        console.info(data)
+        let values=[];
+        for(let i in data){
+            values.push(data[i])
+        }
+
+        var option = {
+            xAxis: {
+                type: 'category',
+                data: ['不及格', '及格', '中等', '良好', '优秀']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                data: values,
+                type: 'line'
+            }]
+        };
+
+        let myChart = echarts.init(document.getElementById('main'));
+        myChart.setOption(option);
+    },'json')
+</script>
+<!-- 为 ECharts 准备一个定义了宽高的 DOM -->
+<script  type="text/html"  id="edit-dialog">
+<form   method="post" class="layui-form" lay-filter="load-data-form">
+    <div class="layui-form-item">
+        <input type="hidden" name="coursenum">
+        <input type="hidden" name="coursename">
+        <input type="text" name="fenxi1" required
+               lay-verify="required"
+               placeholder="请输入考试情况分析"
+               class="layui-input">
+        <input type="text" name="fenxi2" required
+               lay-verify="required"
+               placeholder="请输入试卷质量分析"
+               class="layui-input">
+
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn"   lay-submit lay-filter="form-edit">保存</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+</script>
+</body>
+</html>

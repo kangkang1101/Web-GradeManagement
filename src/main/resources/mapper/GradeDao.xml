@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.score.dao.GradeDao">
+    <update id="update">
+        update tempgrade set usual=#{usuallyScore},experiment=#{experimentScore},exam=#{endTermScore} ,total=#{totalScore} , final=#{totalScore} where coursenum=#{subjectId} and sid=#{studentId}
+    </update>
+    <update id="update1">
+        update tempgrade  set makeup=#{makeUpScore},final=#{finallyScore} where coursenum=#{subjectId} and sid=#{studentId}
+    </update>
+    <update id="update2">
+        update tempgrade  set retake=#{rebuildScore},final=#{finallyScore} where coursenum=#{subjectId} and sid=#{studentId}
+    </update>
+    <update id="pass">
+        UPDATE finalgrade a INNER JOIN tempgrade b
+
+ON a.sid = b.sid AND a.coursenum=b.coursenum
+
+SET  a.final = b.final ,a.total=b.total, a.retake=b.retake, a.makeup=b.makeup
+where b.coursenum=#{cid}
+    </update>
+    <update id="update3">
+        update finalgrade set final=null,total=null,retake=null,makeup=null where coursenum=#{cid}
+    </update>
+    <update id="update4">
+        update tempgrade set final=null,total=null,retake=null,make=null,exam=null,usual=null,experiment=null and where coursenum=#{cid}
+    </update>
+
+    <select id="findAll" resultType="com.score.bean.Grade">
+        select sid studentId, semester semester, coursenum subjectId,total totalScore,makeup makeUpScore,retake rebuildScore,final finallyScore,name name
+        from finalgrade
+        <where>
+            <if test="name!=null and name!=''">
+                name like '%${name}%'
+            </if>
+            and  coursenum=#{cid}
+        </where>
+        limit #{offset}, #{limit}
+
+    </select>
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*) from finalgrade
+    </select>
+    <select id="findAll1" resultType="com.score.bean.Grade">
+        select sid studentId, semester semester, coursenum subjectId,total totalScore,usual usuallyScore,experiment experimentScore,exam endTermScore,name name
+        from tempgrade
+        <where>
+            <if test="name!=null and name!=''">
+                name like '%${name}%'
+            </if>
+            and  coursenum=#{cid}
+        </where>
+        limit #{offset}, #{limit}
+    </select>
+    <select id="findAll2" resultType="com.score.bean.Grade">
+        select sid studentId, semester semester, coursenum subjectId,total totalScore,usual usuallyScore,experiment experimentScore,exam endTermScore,name name, makeup makeUpScore,final finallyScore
+        from tempgrade
+        <where>
+            <if test="name!=null and name!=''">
+                name like '%${name}%'
+            </if>
+            and  coursenum=#{cid} and total &lt; 60 and retake is null
+        </where>
+        limit #{offset}, #{limit}
+    </select>
+    <select id="findAll3" resultType="com.score.bean.Grade">
+        select sid studentId, semester semester, coursenum subjectId,total totalScore,usual usuallyScore,experiment experimentScore,exam endTermScore,name name, makeup makeUpScore,final finallyScore,retake rebuildScore
+        from tempgrade
+        <where>
+            <if test="name!=null and name!=''">
+                name like '%${name}%'
+            </if>
+            and  coursenum=#{cid} and makeup &lt; 60
+        </where>
+        limit #{offset}, #{limit}
+    </select>
+    <select id="findAll4" resultType="com.score.bean.Grade">
+        select sid studentId, semester semester, coursenum subjectId,total totalScore,usual usuallyScore,experiment experimentScore,exam endTermScore,name name, makeup makeUpScore,final finallyScore,retake rebuildScore
+        from tempgrade
+        <where>
+     coursenum=#{cid}
+        </where>
+        limit #{offset}, #{limit}
+    </select>
+    <select id="findAll5" resultType="com.score.bean.Grade">
+        select sid studentId, semester semester, coursenum subjectId,total totalScore,name name, makeup makeUpScore,final finallyScore,retake rebuildScore,coursename coursename
+        from finalgrade
+        <where>
+        <if test="cid!=null and cid!=''">
+            coursename like '%${cid}%'
+        </if>
+            <if test="semester!=null and semester!=''">
+              and semester like '%${semester}%'
+            </if>
+          and sid=#{sid}
+        </where>
+        limit #{offset}, #{limit}
+    </select>
+    <select id="select1" resultType="java.lang.Integer">
+        select count(total) from finalgrade where total &lt; 60
+    </select>
+    <select id="select2" resultType="java.lang.Integer">
+        select count(total) from finalgrade where total &gt;= 60 and final &lt; 70
+    </select>
+    <select id="select3" resultType="java.lang.Integer">
+        select count(total) from finalgrade where total &gt;= 70 and final &lt; 80
+    </select>
+    <select id="select4" resultType="java.lang.Integer">
+        select count(total) from finalgrade where total &gt;= 80 and final &lt; 90
+    </select>
+    <select id="select5" resultType="java.lang.Integer">
+        select count(total) from finalgrade where total &gt;= 90 and final &lt;= 100
+    </select>
+</mapper>

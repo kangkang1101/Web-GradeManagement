@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>显示成绩</title>
+	<link rel="stylesheet" href="../layui/css/layui.css">
+	<script src="../layui/layui.js"></script>
+	<script type="text/javascript">
+		//use(['模块名称',])
+		layui.use(['layer','form','jquery','table'],function () {
+			//编写自己的layui代码
+			//let声明组建
+			let layer=layui.layer;//实例化对象
+			let table=layui.table;
+			let $=layui.jquery;//声明一个jquery对象
+			let form=layui.form;//声明一个form对象
+
+			//编辑操作
+			$("#btn-search").click(function () {
+				table.reload('dg',{
+					where:{
+						coursename: $("#coursename").val()
+					}
+
+				})
+			})
+			$("#btn-search1").click(function () {
+				table.reload('dg',{
+					where:{
+						semester: $("#semester").val()
+					}
+
+				})
+			})
+			table.render({
+				elem: '#dg'
+				,url: '/grade/find5' //数据接口,控制层的路径
+				,page: true //开启分页
+				,toolbar:true
+				,cols: [[ //表头
+					//{filed:'coursenum',title:'课号',type:'checkbox'},
+					{field:'studentId',title:'学号'},
+					{field: 'name',title:'姓名'},
+					{field:'subjectId',title:'课号'},//field是实体的，title是网页命名，type是将cateId这一数据隐藏
+					{field:'coursename',title:'课程名'},
+					{field:'semester',title:'学期'},
+					{field:'totalScore',title:'期末总分'},
+					{field:'makeUpScore',title:'补考分'},
+					{field: 'rebuildScore',title:'重修分'},
+					{field:'finallyScore',title:'最后总分'}
+
+				]]
+			});
+		})//引用多个用数组
+
+	</script>
+</head>
+<body>
+<div class="layui-inline">
+	<input type="text" id="coursename"  class="layui-input">
+</div>
+<button  id="btn-search" class="layui-btn"><i class="layui-icon">&#xe615;</i>课程名称查询</button>
+<div class="layui-inline">
+	<input type="text" id="semester"  class="layui-input">
+</div>
+<button  id="btn-search1" class="layui-btn"><i class="layui-icon">&#xe615;</i>学期查询</button>
+<table id="dg"></table>
+</body>
+</html>

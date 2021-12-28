@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>具体成绩输入</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script type="text/javascript">
+        //use(['模块名称',])
+        layui.use(['layer','form','jquery','table'],function () {
+            //编写自己的layui代码
+            //let声明组建
+            let layer=layui.layer;//实例化对象
+            let table=layui.table;
+            let $=layui.jquery;//声明一个jquery对象
+            let form=layui.form;//声明一个form对象
+
+            $("#btn-pass").click(function () {
+                $.post('grade/update3')
+                $.post('grade/update4')
+                $.post('course/withdrawok')
+                layer.msg("审核通过");
+            })
+
+            $("#btn-fail").click(function (){
+                $.post('course/withdrawfail')
+                layer.msg("处理成功");
+            })
+
+
+            table.render({
+                elem: '#dg'
+                ,url: '/grade/find4' //数据接口,控制层的路径
+                ,page: true //开启分页
+                ,toolbar:true
+                ,cols: [[ //表头
+                    //{filed:'coursenum',title:'课号',type:'checkbox'},
+                    {field:'studentId',title:'学号',type:'checkbox'},
+                    {field:'studentId',title:'学号'},
+                    {field: 'name',title:'姓名'},
+                    {field:'subjectId',title:'课号',},//field是实体的，title是网页命名，type是将cateId这一数据隐藏
+                    {field:'semester',title:'学期'},
+                    {field:'usuallyScore',title:'平时分'},
+                    {field:'endTermScore',title:'期末分'},
+                    {field: 'experimentScore',title:'实验分'},
+                    {field:'totalScore',title:'总分'},
+                    {field:'makeUpScore',title:'补考成绩'},
+                    {field:'rebuildScore',title:'重修成绩'},
+                    {field:'finallyScore',title:'最终成绩'}
+
+                ]]
+            });
+        })//引用多个用数组
+
+    </script>
+</head>
+<body>
+<div class="layui-inline">
+    <input type="text" id="name"  class="layui-input">
+
+</div>
+<button id="btn-pass" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>审核通过</button>
+<button id="btn-fail" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe654;</i>审核不通过</button>
+<table id="dg"></table>
+</body>
+</html>

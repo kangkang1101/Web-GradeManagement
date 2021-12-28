@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员审核成绩</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script type="text/javascript">
+        //use(['模块名称',])
+        layui.use(['layer','form','jquery','table'],function () {
+            //编写自己的layui代码
+            //let声明组建
+            let layer=layui.layer;//实例化对象
+            let table=layui.table;
+            let $=layui.jquery;//声明一个jquery对象
+            let form=layui.form;//声明一个form对象
+
+            $("#btn-enter").click(function () {
+
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要填写的课程')
+                }else if(array.length>1){
+                    layer.msg('只能选择填写一门课程成绩')
+                }
+                else{
+                    let cnum=[];//定义一个空数组,查询的课号
+                    for(let i in array) { //增强循环写法
+                        cnum.push(array[i].coursenum)
+
+
+                    }
+
+                    $.post('/course/setcourse',
+                        {"cnum[]":cnum},function (flag) {
+                            if(flag){
+                                location.href='auditdetail.html';
+                            }else{
+                                location.href='auditdetail.html';
+                                // layer.msg('操作失败',{icon:6});
+                            }
+
+                        })
+                }
+
+            })
+
+
+
+
+            table.render({
+                elem: '#dg'
+                ,url: '/course/findSubmit' //数据接口,控制层的路径
+                ,page: false //开启分页
+                ,toolbar:true
+                ,cols: [[ //表头
+                    //{filed:'coursenum',title:'课号',type:'checkbox'},
+                    {field:'coursenum',title:'课号',type:'checkbox'},//field是实体的，title是网页命名，type是将cateId这一数据隐藏
+                    {field:'coursenum',title:'课号'},
+                    {field:'coursename',title:'课程名称'},
+                    {field:'semester',title:'学期'},
+                    {field:'tid',title:'教师工号'}
+
+
+                ]]
+            });
+        })//引用多个用数组
+
+    </script>
+</head>
+
+<body>
+<button id="btn-enter" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>进入审核</button>
+<table id="dg"></table>
+</body>
+</html>

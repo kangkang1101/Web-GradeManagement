@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>教师成绩查询</title>
+
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script type="text/javascript">
+        //use(['模块名称',])
+        layui.use(['layer','form','jquery','table'],function () {
+            //编写自己的layui代码
+            //let声明组建
+            let layer=layui.layer;//实例化对象
+            let table=layui.table;
+            let $=layui.jquery;//声明一个jquery对象
+            let form=layui.form;//声明一个form对象
+
+            //编辑操作
+
+            $("#btn-show").click(function () {
+
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要填写的课程')
+                }else if(array.length>1){
+                    layer.msg('只能选择填写一门课程成绩')
+                }
+                else{
+                    let cnum=[];//定义一个空数组,查询的课号
+                    let up=[];
+                    let ep=[];
+                    let fp=[];
+                    for(let i in array) { //增强循环写法
+                        cnum.push(array[i].coursenum);
+                        up.push(array[i].usualpercent);
+                        ep.push(array[i].expercent);
+                        fp.push(array[i].finalpercent);
+
+
+                    }
+
+                    $.post('/course/setcourse1',
+                        {"cnum[]":cnum,"up[]":up,"ep[]":ep,"fp[]":fp},function (flag) {
+                            if(flag){
+                                location.href='detailgradein.html';
+                            }else{
+                                location.href='detailgradein.html';
+                                // layer.msg('操作失败',{icon:6});
+                            }
+
+                        })
+                }
+
+            })
+            $("#btn-makeup").click(function () {
+
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要填写的课程')
+                }else if(array.length>1){
+                    layer.msg('只能选择填写一门课程成绩')
+                }
+                else{
+                    let cnum=[];//定义一个空数组,查询的课号
+                    for(let i in array) { //增强循环写法
+                        cnum.push(array[i].coursenum)
+
+
+                    }
+
+                    $.post('/course/setcourse',
+                        {"cnum[]":cnum},function (flag) {
+                            if(flag){
+                                location.href='makeupinput.html';
+                            }else{
+                                location.href='makeupinput.html';
+                                // layer.msg('操作失败',{icon:6});
+                            }
+
+                        })
+                }
+
+            })
+            $("#btn-rebuild").click(function () {
+
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要填写的课程')
+                }else if(array.length>1){
+                    layer.msg('只能选择填写一门课程成绩')
+                }
+                else{
+                    let cnum=[];//定义一个空数组,查询的课号
+                    for(let i in array) { //增强循环写法
+                        cnum.push(array[i].coursenum)
+
+
+                    }
+
+                    $.post('/course/setcourse',
+                        {"cnum[]":cnum},function (flag) {
+                            if(flag){
+                                location.href='rebuildinput.html';
+                            }else{
+                                location.href='rebuildinput.html';
+                                // layer.msg('操作失败',{icon:6});
+                            }
+
+                        })
+                }
+
+            })
+
+
+            table.render({
+                elem: '#dg'
+                ,url: '/course/find2' //数据接口,控制层的路径
+                ,page: false //开启分页
+                ,toolbar:true
+                ,cols: [[ //表头
+                    //{filed:'coursenum',title:'课号',type:'checkbox'},
+                    {field:'coursenum',title:'课号',type:'checkbox'},//field是实体的，title是网页命名，type是将cateId这一数据隐藏
+                    {field:'coursenum',title:'课号'},
+                    {field:'coursename',title:'课程名称'},
+                    {field:'semester',title:'学期'},
+                    {field: 'usualpercent',title:'平时分占比'},
+                    {field:'expercent',title:'实验占比'},
+                    {field:'finalpercent',title:'期末占比'}
+
+                ]]
+            });
+        })//引用多个用数组
+
+    </script>
+</head>
+
+<body>
+<button id="btn-show" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>填写正考成绩</button>
+<button id="btn-makeup" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>填写补考成绩</button>
+<button id="btn-rebuild" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>填写重修成绩</button>
+<table id="dg"></table>
+</body>

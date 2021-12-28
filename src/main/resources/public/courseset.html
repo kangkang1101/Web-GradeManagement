@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>课程比分设置</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script type="text/javascript">
+        //use(['模块名称',])
+        layui.use(['layer','form','jquery','table'],function () {
+            //编写自己的layui代码
+            //let声明组建
+            let layer=layui.layer;//实例化对象
+            let table=layui.table;
+            let $=layui.jquery;//声明一个jquery对象
+            let form=layui.form;//声明一个form对象
+
+            //编辑操作
+            $("#btn-search").click(function () {
+                table.reload('dg',{
+                    where:{
+                        coursename: $("#coursename").val()
+                    }
+
+                })
+            })
+            $("#btn-search1").click(function () {
+                table.reload('dg',{
+                    where:{
+                        semester: $("#semester").val()
+                    }
+
+                })
+            })
+
+            $("#btn-edit").click(function () {
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要编辑的项');
+                }else if(array.length>1){
+                    layer.msg('编辑时只能选中一条记录进行编辑');
+                }else{
+                    layer.open({
+                        title:'编辑',
+                        area:['300px','300px'],
+                        type:1,
+                        content:$("#edit-dialog").html()
+                    });
+                    //填充修改表单
+                    form.val('load-data-form', {
+                        coursename: array[0].coursename,
+                        semester: array[0].semester,
+                        coursenum: array[0].coursenum,
+                        usualpercent: array[0].usualpercent,
+                        expercent: array[0].expercent,
+                        finalpercent: array[0].finalpercent,
+
+                    })
+                    form.on('submit(form-edit)',function (data) {
+
+                            $.post('/course/update', data.field, function (flag) {
+                                if (flag) {
+
+                                    layer.msg('修改数据成功', {icon: 4});
+                                    table.reload('dg');
+                                    layer.closeAll('page');
+                                } else {
+                                    layer.msg('修改数据失败', {icon: 5});
+                                }
+                            }, 'json')
+
+
+                        return false;
+                    })
+
+                }
+            })
+
+
+            table.render({
+                elem: '#dg'
+                ,url: '/course/find' //数据接口,控制层的路径
+                ,page: false //开启分页
+                ,toolbar:true
+                ,cols: [[ //表头
+                    //{filed:'coursenum',title:'课号',type:'checkbox'},
+                    {field:'coursenum',title:'课号',type:'checkbox'},//field是实体的，title是网页命名，type是将cateId这一数据隐藏
+                    {field:'coursenum',title:'课号'},
+                    {field:'coursename',title:'课程名称'},
+                    {field:'semester',title:'学期'},
+                    {field: 'usualpercent',title:'平时分占比'},
+                    {field:'expercent',title:'实验占比'},
+                    {field:'finalpercent',title:'期末占比'}
+
+                ]]
+            });
+        })//引用多个用数组
+
+    </script>
+</head>
+
+<body>
+<button id="btn-edit" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>设置比例</button>
+<div class="layui-inline">
+    <input type="text" id="coursename"  class="layui-input">
+</div>
+<button  id="btn-search" class="layui-btn"><i class="layui-icon">&#xe615;</i>课程名称查询</button>
+<div class="layui-inline">
+    <input type="text" id="semester"  class="layui-input">
+</div>
+<button  id="btn-search1" class="layui-btn"><i class="layui-icon">&#xe615;</i>学期查询</button>
+<table id="dg"></table>
+<script  type="text/html"  id="edit-dialog">
+    <form  method="post" class="layui-form" lay-filter="load-data-form">
+        <div class="layui-form-item">
+            <input type="hidden" name="coursenum">
+            <input type="hidden" name="coursename">
+            <input type="hidden" name="semester">
+            <input type="text" name="usualpercent" required
+                   lay-verify="required"
+                   placeholder="请输入平时分占比名称"
+                   class="layui-input">
+            <input type="text" name="expercent" required
+                   lay-verify="required"
+                   placeholder="请输入实验分占比名称"
+                   class="layui-input">
+            <input type="text" name="finalpercent" required
+                   lay-verify="required"
+                   placeholder="请输入期末分占比名称"
+                   class="layui-input">
+
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn"   lay-submit lay-filter="form-edit">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+
+
+</script>
+</body>
+</html>

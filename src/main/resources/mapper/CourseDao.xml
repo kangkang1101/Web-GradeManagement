@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.score.dao.CourseDao">
+    <resultMap type="com.score.bean.Course" id="CourseMap">
+        <result property="coursenum" column="cousenum" jdbcType="VARCHAR"/>
+        <result property="coursename" column="cousename" jdbcType="VARCHAR"/>
+        <result property="semester" column="semester" jdbcType="VARCHAR"/>
+        <result property="tid" column="tid" jdbcType="INTEGER"/>
+        <result property="usualpercent" column="usualpercent" jdbcType="INTEGER"/>
+        <result property="finalpercent" column="finalpercent" jdbcType="INTEGER"/>
+        <result property="expercent" column="" jdbcType="INTEGER"/>
+        <result property="fenxi1" column="fenxi1" jdbcType="VARCHAR"/>
+        <result property="fenxi2" column="fenxi2" jdbcType="VARCHAR"/>
+    </resultMap>
+    <update id="update" >
+     update course set usualpercent=#{usualpercent},expercent=#{expercent},finalpercent=#{finalpercent} ,isset=1 where coursenum=#{coursenum}
+    </update>
+    <update id="updatefinal">
+        update course set submit=1 where coursenum=#{coursenum}
+    </update>
+    <update id="pass">
+        update course set pass=1 where coursenum=#{cid}
+    </update>
+    <update id="fail">
+        update course set submit=0 where coursenum=#{cid}
+    </update>
+    <update id="setwithdraw">
+        update course set withdraw=1 where coursenum=#{cid}
+    </update>
+    <update id="withdrawok">
+        update course set withdraw=0,submit=0,pass=0 where coursenum=#{cid}
+    </update>
+    <update id="withdrawfail">
+        update course set withdraw=0 where coursenum=#{cid}
+    </update>
+    <update id="updatefenxi">
+        update fenxi set fenxi1=#{fenxi1},fenxi2=#{fenxi2} where coursenum=#{coursenum}
+    </update>
+
+    <select id="findIsSet" resultType="com.score.bean.Course">
+        select * from course where tid=#{uid} and pass=1
+    </select>
+    <select id="findNoSubmit" resultType="com.score.bean.Course">
+        select * from course where tid=#{uid} and  isset=1
+    </select>
+    <select id="findIsSubmit" resultType="com.score.bean.Course">
+        select * from course where submit=1 and pass=0
+    </select>
+    <select id="findSemester" resultType="java.lang.String">
+        select semester from course
+    </select>
+    <select id="findwithdraw" resultType="com.score.bean.Course">
+        select * from course where withdraw=1
+    </select>
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*) from course
+    </select>
+    <select id="findAll" resultType="com.score.bean.Course">
+        select coursenum coursenum,coursename coursename,semester semester,tid tid,usualpercent usualpercent,finalpercent finalpercent,expercent expercent from course
+        <where>
+            <if test="cid!=null and cid!=''">
+                coursename like '%${cid}%'
+            </if>
+            <if test="semester!=null and semester!=''">
+            semester like '%${semester}%'
+            </if>
+            and tid=#{uid}
+        </where>
+    </select>
+    <select id="fenxi" resultType="com.score.bean.Course">
+        select coursenum coursenum,coursename coursename,fenxi1 fenxi1,fenxi2 fenxi2 from fenxi where coursenum=#{cid}
+    </select>
+</mapper>

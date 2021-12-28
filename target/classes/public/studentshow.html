@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>课程比分设置</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script type="text/javascript">
+        //use(['模块名称',])
+        layui.use(['layer','form','jquery','table'],function () {
+            //编写自己的layui代码
+            //let声明组建
+            let layer=layui.layer;//实例化对象
+            let table=layui.table;
+            let $=layui.jquery;//声明一个jquery对象
+            let form=layui.form;//声明一个form对象
+
+            //编辑操作
+
+            $("#btn-edit").click(function () {
+                let array=table.checkStatus('dg').data;
+                if(array.length==0){
+                    layer.msg('请选择要查看的学期');
+                }else if(array.length>1){
+                    layer.msg('只能选择查看一个学期成绩');
+                }else{
+
+
+
+                }
+            })
+
+
+            table.render({
+                elem: '#dg'
+                ,url: '/course/findsemester' //数据接口,控制层的路径
+                ,page: false //开启分页
+                ,toolbar:true
+                ,cols: [[ //表头
+                    //{filed:'coursenum',title:'课号',type:'checkbox'},
+                    {field:'semester',title:'学期',type:'checkbox'},
+                    {field:'semester',title:'学期'},
+
+
+                ]]
+            });
+        })//引用多个用数组
+
+    </script>
+</head>
+
+<body>
+<button id="btn-search" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>进入查询</button>
+<table id="dg"></table>
+</body>
+</html>
